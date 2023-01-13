@@ -1,0 +1,55 @@
+name: Deploy to App Runner
+on:
+  push:
+    # Sequence of patterns matched against refs/heads
+    branches:
+      # run on release
+      - 'releases/**'
+    # # Sequence of patterns matched against refs/tags
+    # tags:
+    #   # or any tagged commits
+    #   - *
+  workflow_dispatch: # Allow manual invocation of the workflow
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1 # Configure with AWS Credentials
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Deploy to App Runner
+        id: deploy-apprunner
+        uses: awslabs/amazon-app-runner-deploy@main # Deploy app runner service
+        with:
+          # App Runner service name
+          service: ${{ secrets.AWS_APP_RUNNER_SERVICE_NAME }}
+          source-connection-arn: ${{ secrets.AWS_CONNECTION_SOURCE_ARN }}
+          repo: https://github.com/${{ github.repository }}
+          branch: ${{ github.ref }}
+          # TODO: Choose one platform!
+          # Runtimes: https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-apprunner/enums/runtime.html
+          # Python 3 runtime
+          runtime: PYTHON_3
+          build-command: pip install -r requirements.txt && python -m unittest
+          start-command: python app.py
+          # # Node.JS runtime
+          # runtime: NODEJS_16
+          # build-command: npm install && npm test
+          # start-command: npm start
+          port: 8000
+          region: ${{ secrets.AWS_REGION }}
+          # For more info about resource values:
+          # https://docs.aws.amazon.com/apprunner/latest/api/API_InstanceConfiguration.html
+          cpu : 1
+          memory : 2
+          # Deprecated: wait-for-service-stability: true
+          # The new way to control service stability timeout
+          wait-for-service-stability-seconds: 1200
+
+      - name: App Runner output
+        run: echo "App runner output ${{ steps.deploy-apprunner.outputs.service-id }}"
