@@ -2,6 +2,8 @@
 
 Hello! This is a template that builds and re-deploys web applications based on GitHub Action runs to [AWS App Runner][app-runner].
 
+There's a fully functional example of this workflow in the [pixel-dashboard repository][pixel-dashboard].
+
 ## Setup Instructions
 
 ### Step 1: New repo
@@ -30,27 +32,28 @@ If you're not using a Python3 environment, you can choose from one of the follow
 
 CPU, RAM and other settings are also available there.
 
+#### Environment Variables
+
+If you need to pass any environment variables from the GitHub Action into the App Runner config, you can add them in your Action Secrets and then add them to the `copy-env-vars` list. Some necessary enviroment variables have already been added for you (IAM credentials and region).
+
 ### Step 4: Run the action
 
 Running this action will deploy the app. If it doesn't exist, it will be created.
 
-This is set up to deploy when a release is pushed. You can also manually run it by going to: `Actions` -> `Deploy to App Runner` (in right menu) -> `Run workflow` (button) -> `Run workflow`.
-
 You should see the App Runner service in the AWS console now if all went well. If there was a failure, the workflow run will have logs detailing the problem.
 
-### Step 5: Alter the App Runner config
+### Step 5: Deployments
 
-By default, the App Runner is setup to monitor the GitHub repo and automatically deploy upon every commit. This is due to the fact that the App Runner GitHub Action doesn't let us set the deploy to manual yet. To fix this, let's change the settings:
+Pushing to the `main` branch will deploy this to App Runner. You don't need to run the GitHub Action to deploy, App Runner is listening for commits to `main`. *Use feature branches while developing.* App Runner will automatically roll back any commits that cause a build error or a failed health check.
+
+You can change App Runner settings by doing the following:
 
 1. Go to the [AWS App Runner Console](https://us-east-1.console.aws.amazon.com/apprunner/home?region=us-east-1#/services)
 2. Click on the appropriate service
 3. Go to the `Configuration` tab
-4. In `Source and deployment` click the `Edit` button.
-5. From here, you can set the `Deployment method` to `Manual`
+4. In the section you want to change, click the `Edit` button.
 
-Doing this will make it so that only releases and manual action runs will cause a deploy.
-
-You could also add some tags on this page. A project tag could be a good idea, if there are other non-App Runner resources associated with this service.
+A project tag could be a good idea, if there are other non-App Runner resources associated with this service.
 
 ## Misc Notes
 
@@ -126,3 +129,6 @@ Make sure to make the replacements to the `Resource` string.
 
 [app-runner-deploy-template]: https://github.com/thecityny/app-runner-deploy-template
     "App Runner GitHub Action Template"
+
+[pixel-dashboard]: https://github.com/thecityny/pixel-dashboard
+    "Pixel Dashboard GitHub Repo"

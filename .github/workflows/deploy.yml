@@ -50,6 +50,10 @@ jobs:
           # Deprecated: wait-for-service-stability: true
           # The new way to control service stability timeout
           wait-for-service-stability-seconds: 1200
+          copy-env-vars: |
+            AWS_ACCESS_KEY_ID
+            AWS_SECRET_ACCESS_KEY
+            AWS_REGION
 
       - name: App Runner output
         run: echo "App runner output ${{ steps.deploy-apprunner.outputs.service-id }}"
